@@ -7,7 +7,7 @@ copyfile(romPath, 'Hmmm'+romPath)
 
 yamlfile = open("Modes/NightmareWithHiddenItems.yml")
 yamltext = yamlfile.read()
-settings = yaml.load(yamltext)
+settings = yaml.load(yamltext, Loader=yaml.FullLoader)
 yamlfile = open(settings['BasePatch'])
 yamltext = yamlfile.read()
 patches = json.loads(yamltext)

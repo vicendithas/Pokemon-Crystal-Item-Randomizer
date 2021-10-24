@@ -125,3 +125,75 @@ Location:
                 Code: |
                   Route44FruitTree:
                       ITEMLINE
+            -
+                Name: Route 44 Bird Keeper Vance Carbos
+                FileName: Route44.asm
+                SecondaryFile: Route44.asm
+                Type: Item
+                HasPKMN: No
+                WildTableList: 
+                LocationReqs: 
+                    - Route 44
+                    - Power Plant Activated
+                    - Elite Four
+                FlagReqs:
+                ItemReqs:
+                    - Pokegear
+                    - Phone Call Trainers
+                FlagsSet:
+                ReachableReqs:
+                IsBall: No
+                NormalItem: CARBOS
+                Code: |
+                    .Carbos:
+                        opentext
+                        writetext BirdKeeperVance2BeatenText
+                        waitbutton
+                        ITEMLINE
+                        iffalse VancePackFull
+                        clearevent EVENT_VANCE_CARBOS
+                        setevent EVENT_GOT_CARBOS_FROM_VANCE
+                        sjump Route44NumberAcceptedM
+                SecondaryCode: |
+                    .LoadFight2:
+                        loadtrainer BIRD_KEEPER, VANCE3
+                        startbattle
+                        reloadmapafterbattle
+                        clearflag ENGINE_VANCE
+                        checkevent EVENT_VANCE_CARBOS
+                        iftrue .Carbos
+                        checkevent EVENT_GOT_CARBOS_FROM_VANCE
+                        iftrue .ReceivedCarbosBefore
+                        scall Route44RematchGiftM
+                        ITEMLINE
+                        iffalse VancePackFull
+                        setevent EVENT_GOT_CARBOS_FROM_VANCE
+                        sjump Route44NumberAcceptedM
+                Text:
+                TrainerList: 
+                Sublocations:
+            -
+                Name: Route 44 Fisher Wilton Ball
+                FileName: Route44.asm
+                SecondaryFile: Route44.asm
+                Type: Item
+                HasPKMN: No
+                WildTableList: 
+                LocationReqs: 
+                    - Route 44
+                FlagReqs:
+                ItemReqs:
+                    - Pokegear
+                    - Phone Call Trainers
+                FlagsSet:
+                ReachableReqs:
+                IsBall: No
+                NormalItem: ULTRA_BALL
+                Code: |
+                    .PokeBall:
+                        ITEMLINE
+                        iffalse .Route44PackFullM
+                SecondaryCode:
+                Text:
+                TrainerList: 
+                Sublocations:

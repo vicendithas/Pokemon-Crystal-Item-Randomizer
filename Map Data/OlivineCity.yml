@@ -84,6 +84,7 @@ Location:
         Code:
         Text:
         TrainerList:
+        HintName: Olivine
         Sublocations:
             -
                 Name: Olivine Strength HM
@@ -166,7 +167,7 @@ Location:
                 Type: Item
                 HasPKMN: No
                 WildTableList:
-                LocationReqs: Olivine City
+                LocationReqs: SS Aqua via Vermilion
                 FlagReqs:
                     - Hidden Items
                     - Fog Badge
@@ -175,6 +176,10 @@ Location:
                     - Surf
                 FlagsSet:
                 ReachableReqs:
+                Tags:
+                      -
+                        Name: Annoying
+                        SubTags:
                 NormalItem: PROTEIN
                 Code: |
                     OlivinePortHiddenProtein:

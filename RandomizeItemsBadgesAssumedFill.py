@@ -8,6 +8,8 @@ import RandomizeFunctions
 
 
 def RandomizeItems(goalID,locationTree, progressItems, trashItems, badgeData, seed, inputFlags=[], reqBadges = { 'Zephyr Badge', 'Fog Badge', 'Hive Badge', 'Plain Badge', 'Storm Badge', 'Glacier Badge', 'Rising Badge'}, coreProgress= ['Surf','Fog Badge', 'Pass', 'S S Ticket', 'Squirtbottle','Cut','Hive Badge'], allPossibleFlags = ['Johto Mode','Kanto Mode'], plandoPlacements = {}):
+	monReqItems = ['ENGINE_POKEDEX','COIN_CASE', 'OLD_ROD', 'GOOD_ROD', 'SUPER_ROD']
+	
 	random.seed(seed)
 	#add the "Ok" flag to the input flags, which is used to handle locations that lose all their restrictions
 	inputFlags.append('Ok')
@@ -170,11 +172,11 @@ def RandomizeItems(goalID,locationTree, progressItems, trashItems, badgeData, se
 						nLeft = 0
 				legal = True
 				#don't attempt to put badges in mt. silver
-				if('Mt. Silver' in locList[iter].LocationReqs and toAllocate in badgeSet):
+				if('Mt. Silver' in locList[iter].LocationReqs and toAllocate in badgeSet and not 'Open Mt. Silver' in inputFlags):
 					placeable = False
 				#is it the right type of location?
-				#print(locList[iter].Name)
-				#print(locList[iter].Type)
+				##print(locList[iter].Name)
+				##print(locList[iter].Type)
 				#all locations are now the same!
 				if((locList[iter].Type == 'Item' or locList[iter].Type == 'Gym') and placeable):
 					#print('Trying '+locList[iter].Name +' as ' +toAllocate)
@@ -401,7 +403,12 @@ def RandomizeItems(goalID,locationTree, progressItems, trashItems, badgeData, se
 							except ValueError:
 								pass
 						else:
-							i.item = trashItems.pop()
+							placeItem = trashItems.pop()
+							while placeItem in monReqItems and 'Mon Locked Checks' in i.requirementsNeeded(defaultdict(lambda: False)):
+								oldItem = placeItem
+								placeItem = trashItems.pop()
+								trashItems.insert(random.randint(0, len(trashItems)), oldItem)
+							i.item = placeItem
 						trashSpoiler[i.Name] = i.item
 						i.IsGym = False
 						i.IsItem = True
@@ -464,12 +471,13 @@ def RandomizeItems(goalID,locationTree, progressItems, trashItems, badgeData, se
 
 	changes = RandomizeFunctions.HandleItemReplacement(reachable,inputFlags)
 
+
 	for change in changes.keys():
 		if change in trashSpoiler:
 			trashSpoiler[change] = trashSpoiler[change] + "->" + changes[change]
 
-	if len(trashItems) > 0 and not randomizerFailed:
-		print(len(trashItems), trashItems)
+	#if len(trashItems) > 0 and not randomizerFailed:
+		#print(len(trashItems), trashItems)
 
 	#print(stateDist)
 	#print(spoiler)
@@ -477,4 +485,5 @@ def RandomizeItems(goalID,locationTree, progressItems, trashItems, badgeData, se
 	#print('illegal')
 	#print('remaining')
 	#print(trashItems)
-	return (reachable, spoiler, stateDist, randomizerFailed, trashSpoiler)
+	#print('Total number of checks in use: '+str(len(spoiler)+len(trashSpoiler)))
+	return (reachable, spoiler, stateDist, randomizerFailed, trashSpoiler, requirementsDict)

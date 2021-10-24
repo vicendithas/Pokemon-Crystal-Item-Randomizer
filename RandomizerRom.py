@@ -31,7 +31,8 @@ def ResetRomForLabelling():
 		for file in files:
 			shutil.copy("Files with manual labels/engine/"+file,"RandomizerRom/engine/"+file)
 	shutil.copy("Files with manual labels/blocks/blocks.asm","RandomizerRom/data/maps/blocks.asm")
-	shutil.copy("Files with manual labels/moves/tmhm_moves.asm","RandomizerRom/data/moves/tmhm_moves.asm")
+	shutil.copy("Files with manual labels/pokemon/breeding.asm","RandomizerRom/engine/pokemon/breeding.asm")
+	shutil.copy("Files with manual labels/events/magikarp_lengths.asm","RandomizerRom/data/events/magikarp_lengths.asm")
 
 def WriteOakBadgeCheckNumber(number, addressData, gameFile):
 	#get where this is
@@ -48,7 +49,7 @@ def WriteTrainerDataToMemory(locationDict,distDict,addressData,romMap, levelBonu
 	#load up the trainer data
 	yamlfile = open("TrainerData/Trainers.yaml")
 	yamltext = yamlfile.read()
-	trainerData = yaml.load(yamltext)
+	trainerData = yaml.load(yamltext, Loader=yaml.FullLoader)
 	#loop through locations
 	for i in distDict:
 		if i in locationDict:
@@ -148,7 +149,7 @@ def WriteSpecialWildToMemory(locationDict,distDict,addressData,romMap, levelBonu
 		for file in files:
 			#print("File: "+file)
 			entry = open("Special Pokemon Locations/"+file,'r')
-			yamlData = yaml.load(entry)
+			yamlData = yaml.load(entry, Loader=yaml.FullLoader)
 			loc = yamlData["Location"]
 			if(True):
 				idTextB = "ckir_BEFORE"+"".join(loc.upper().split()).replace('.','_').replace("'","")+"0SPECIALWILD"
@@ -164,9 +165,9 @@ def WriteSpecialWildToMemory(locationDict,distDict,addressData,romMap, levelBonu
 
 def DirectWriteItemLocations(locations,addressData,gameFile, progRod = False):
 	codeLookup = Items.makeRawItemCodeDict(progRod)
-	yamlfile = open("badgeData.yml")
+	yamlfile = open("badgeData.yml",encoding='utf-8')
 	yamltext = yamlfile.read()
-	gymOffsets = yaml.load(yamltext)
+	gymOffsets = yaml.load(yamltext, Loader=yaml.FullLoader)
 	for i in locations:
 		if i.isItem():
 			if i.IsHidden:
@@ -225,11 +226,11 @@ def WriteBadgeToRomMemory(location,labelData,gymOffsets,romMap):
 #STILL NEED TO WRITE THE REST OF THESE
 def WriteRegularLocationToRomMemory(location,labelData,itemScriptLookup,romMap):
 	if(not isinstance(location, Gym.Gym)):
-		labelCodeB = "ckir_BEFORE"+("".join(location.Name.split())).upper().replace('.','_').replace("'","")+'0ITEMCODE'
-		labelCodeB2 = "ckir_BEFORE"+("".join(location.Name.split())).upper().replace('.','_').replace("'","")+'0ITEMCODEB'
+		labelCodeB = "ckir_BEFORE"+("".join(location.TrueName.split())).upper().replace('.','_').replace("'","")+'0ITEMCODE'
+		labelCodeB2 = "ckir_BEFORE"+("".join(location.TrueName.split())).upper().replace('.','_').replace("'","")+'0ITEMCODEB'
 	else:
-		labelCodeB = "ckir_BEFORE"+("".join(location.Name.split())).upper().replace('.','_').replace("'","")+'0BADGECODE'
-		labelCodeB2 = "ckir_BEFORE"+("".join(location.Name.split())).upper().replace('.','_').replace("'","")+'0BADGECODEB'
+		labelCodeB = "ckir_BEFORE"+("".join(location.TrueName.split())).upper().replace('.','_').replace("'","")+'0BADGECODE'
+		labelCodeB2 = "ckir_BEFORE"+("".join(location.TrueName.split())).upper().replace('.','_').replace("'","")+'0BADGECODEB'
 
 	#print('Writing '+labelCodeB)
 	addressData = labelData[labelCodeB]
@@ -248,11 +249,11 @@ def WriteRegularLocationToRomMemory(location,labelData,itemScriptLookup,romMap):
 	elif(itemType == 'Rod'):
 		commandVerbose = 177
 		commandBall = 4
-		endVal = 176 
+		endVal = 176
 		nItemCode = 176
 	if location.IsBall:
-		labelCodeBNPC = "ckir_BEFORE"+("".join(location.Name.split())).upper().replace('.','_').replace("'","")+'0NPCCODE'
-		labelCodeBNPC2 = "ckir_BEFORE"+("".join(location.Name.split())).upper().replace('.','_').replace("'","")+'0NPCCODEB'
+		labelCodeBNPC = "ckir_BEFORE"+("".join(location.TrueName.split())).upper().replace('.','_').replace("'","")+'0NPCCODE'
+		labelCodeBNPC2 = "ckir_BEFORE"+("".join(location.TrueName.split())).upper().replace('.','_').replace("'","")+'0NPCCODEB'
 		addressDataNPC = labelData[labelCodeBNPC]
 		#need to extract the nibble out
 		#print(list(map(int, addressDataNPC["integer_values"].split(' '))))
@@ -288,8 +289,8 @@ def WriteRegularLocationToRomMemory(location,labelData,itemScriptLookup,romMap):
 			romMap[addressDataNPC2["address_range"]["begin"]+7] = newBallByte
 			romMap[addressData2["address_range"]["begin"]] = nItemCode
 	elif location.IsBerry:
-		labelCodeBNPC = "ckir_BEFORE" + ("".join(location.Name.split())).upper().replace('.', '_').replace("'","") + '0NPCCODE'
-		labelCodeBNPC2 = "ckir_BEFORE" + ("".join(location.Name.split())).upper().replace('.', '_').replace("'","") + '0NPCCODEB'
+		labelCodeBNPC = "ckir_BEFORE" + ("".join(location.TrueName.split())).upper().replace('.', '_').replace("'","") + '0NPCCODE'
+		labelCodeBNPC2 = "ckir_BEFORE" + ("".join(location.TrueName.split())).upper().replace('.', '_').replace("'","") + '0NPCCODEB'
 		addressDataNPC = labelData[labelCodeBNPC]
 
 
@@ -326,9 +327,9 @@ def WriteRegularLocationToRomMemory(location,labelData,itemScriptLookup,romMap):
 			romMap[addressData2["address_range"]["begin"]+1] = nItemCode
 			romMap[addressData2["address_range"]["begin"]+2] = endVal
 
-		
+
 def WriteAideBallsToRomMemory(location,labelData,itemScriptLookup,romMap):
-	labelCodeB = "ckir_BEFORE"+("".join(location.Name.split())).upper().replace('.','_').replace("'","")+'0ITEMCODE'
+	labelCodeB = "ckir_BEFORE"+("".join(location.TrueName.split())).upper().replace('.','_').replace("'","")+'0ITEMCODE'
 	#print('Writing'+labelCodeB)
 	addressData = labelData[labelCodeB]
 	nItemCodeData = itemScriptLookup(location.item)
@@ -357,10 +358,10 @@ def WriteAideBallsToRomMemory(location,labelData,itemScriptLookup,romMap):
 		romMap[addressData["address_range"]["begin"]+13] = endVal
 
 def WriteMachinePartToRomMemory(location,labelData,itemScriptLookup,romMap):
-	labelCodeB = "ckir_BEFORE"+("".join(location.Name.split())).upper().replace('.','_').replace("'","")+'0ITEMCODE'
-	labelCodeBNPC = "ckir_BEFORE"+("".join(location.Name.split())).upper().replace('.','_').replace("'","")+'0ITEMCODEB'
+	labelCodeB = "ckir_BEFORE"+("".join(location.TrueName.split())).upper().replace('.','_').replace("'","")+'0ITEMCODE'
+	labelCodeBNPC = "ckir_BEFORE"+("".join(location.TrueName.split())).upper().replace('.','_').replace("'","")+'0ITEMCODEB'
 
-	#print('Writing'+labelCodeB)
+	#print('Writing '+labelCodeB+' with '+location.item)
 	addressData = labelData[labelCodeB]
 	addressDataNPC = labelData[labelCodeBNPC]
 	nItemCodeData = itemScriptLookup(location.item)
@@ -378,6 +379,30 @@ def WriteMachinePartToRomMemory(location,labelData,itemScriptLookup,romMap):
 		nItemCode = 0
 	romMap[addressDataNPC["address_range"]["begin"]+2] = command
 	romMap[addressData["address_range"]["begin"]+2] = nItemCode
+	
+	if not location.OtherName is None:
+		labelCodeB = "ckir_BEFORE"+("".join(location.OtherName.split())).upper().replace('.','_').replace("'","")+'0ITEMCODE'
+		labelCodeBNPC = "ckir_BEFORE"+("".join(location.OtherName.split())).upper().replace('.','_').replace("'","")+'0ITEMCODEB'
+
+		#print('Writing '+labelCodeB+' with '+location.item)
+		addressData = labelData[labelCodeB]
+		addressDataNPC = labelData[labelCodeBNPC]
+		nItemCodeData = itemScriptLookup(location.item)
+		nItemCode = nItemCodeData[0]
+		itemType = nItemCodeData[1]
+		if(itemType == 'Item'):
+			command = 7
+			nextVal = nItemCode
+		elif(itemType == 'Flag'):
+			command = 9
+			nextVal = nItemCode
+		elif(itemType == 'Rod'):
+			command = 10
+			nextVal = 0
+			nItemCode = 0
+		romMap[addressDataNPC["address_range"]["begin"]+2] = command
+		romMap[addressData["address_range"]["begin"]+2] = nItemCode
+
 
 
 def LabelAllLocations(locations):
@@ -385,21 +410,21 @@ def LabelAllLocations(locations):
 	#textLookup = Items.makeItemTextDict()
 	for i in locations:
 		#TODO, LABELING FOR SPECIAL LOCATIONS
-		if i.isItem():
+		if i.isItem() or i.Type == 'Dummy':
 			LabelItemLocation(i)
 		elif i.isGym():
 			LabelBadgeLocation(i)
 
 def LabelBadgeLocation(location):
 	print("Labeling "+location.Name)
-	
+
 	#open the relevant file and get it as a string
 	file = open("RandomizerRom/maps/"+location.FileName)
 	filecode = file.read()
 	newfile = filecode
 	#constuct new script that gives the new item
 	#replace is technically deprecated, but this is more readable
-	
+
 	#find the code we need to replace
 	coderegexstr = "("+re.escape(location.Code.replace("    ","\t").replace("\tBADGELINE","REPTHIS")).replace("REPTHIS","(.+)")+")"
 	codeSearch = re.findall(coderegexstr,filecode)[0]
@@ -419,7 +444,7 @@ def LabelBadgeLocation(location):
 	newfilestream.flush()
 	os.fsync(newfilestream.fileno())
 	newfilestream.close()
-	
+
 	if(not location.SecondaryCode is None):
 		print("Secondary Labelling "+location.Name)
 		#open the relevant file and get it as a string
@@ -428,7 +453,7 @@ def LabelBadgeLocation(location):
 		newfile = filecode
 		#constuct new script that gives the new item
 		#replace is technically deprecated, but this is more readable
-		
+
 		#find the code we need to replace
 		coderegexstr = "("+re.escape(location.SecondaryCode.replace("    ","\t").replace("\tBADGELINE","REPTHIS")).replace("REPTHIS","(.+)")+")"
 		codeSearch = re.findall(coderegexstr,filecode)[0]
@@ -468,7 +493,7 @@ def LabelWild():
 	#load up the grass data
 	yamlfile = open("Wild Data/wildGrass.yaml")
 	yamltext = yamlfile.read()
-	wildData = yaml.load(yamltext)
+	wildData = yaml.load(yamltext, Loader=yaml.FullLoader)
 	for j in wildData:
 		#print('Writing '+j)
 		areaData = wildData[j.upper()]
@@ -490,7 +515,7 @@ def LabelWild():
 	#load up the water data
 	yamlfile = open("Wild Data/surfGrass.yaml")
 	yamltext = yamlfile.read()
-	wildData = yaml.load(yamltext)
+	wildData = yaml.load(yamltext, Loader=yaml.FullLoader)
 	for j in wildData:
 		#print('Writing '+j)
 		areaData = wildData[j.upper()]
@@ -512,7 +537,7 @@ def LabelWild():
 	#load up the swarm data
 	yamlfile = open("Wild Data/swarmGrass.yaml")
 	yamltext = yamlfile.read()
-	wildData = yaml.load(yamltext)
+	wildData = yaml.load(yamltext, Loader=yaml.FullLoader)
 	for j in wildData:
 		#print('Writing '+j)
 		areaData = wildData[j.upper()]
@@ -541,7 +566,7 @@ def LabelSpecialWild(locationList):
 		for file in files:
 			#print("File: "+file)
 			entry = open("Special Pokemon Locations/"+file,'r')
-			yamlData = yaml.load(entry)
+			yamlData = yaml.load(entry, Loader=yaml.FullLoader)
 			loc = yamlData["Location"]
 			if(True):
 				fileName = locationDict[loc].FileName
@@ -607,7 +632,7 @@ def LabelItemLocation(location):
 	#open the relevant file and get it as a string
 	file = open("RandomizerRom/maps/"+location.FileName)
 	filecode = file.read()
-	
+
 	#constuct new script that gives the new item
 	#replace is technically deprecated, but this is more readable
 
@@ -628,8 +653,8 @@ def LabelItemLocation(location):
 	else:
 		coderegexstr = re.escape(location.Code.replace("    ","\t")).replace("ITEMLINE",".+")
 		oldcode = re.findall(coderegexstr,filecode)[0]
-	
-	#if this is an itemball, we need to find out what the command is because we're also going to need to find the line that actually 
+
+	#if this is an itemball, we need to find out what the command is because we're also going to need to find the line that actually
 	if location.IsBall or location.IsBerry:
 		#find the code on the line BEFORE the one we need to modify
 		#fortunately, we have these lines already labeled, we need them to label something else
@@ -667,14 +692,14 @@ def LabelItemLocation(location):
 	newfilestream.flush()
 	#os.fsync(newfilestream.fileno())
 	newfilestream.close()
-	
+
 	#if there is a secondary set of code that also needs to be written, write it
 	if(not location.SecondaryCode is None):
 		print("Secondary Labelling "+location.Name)
 		#open the relevant file and get it as a string
 		file = open("RandomizerRom/maps/"+location.SecondaryFile)
 		filecode = file.read()
-		
+
 		#constuct new script that gives the new item
 		#replace is technically deprecated, but this is more readable
 
@@ -695,7 +720,7 @@ def LabelItemLocation(location):
 		else:
 			coderegexstr = re.escape(location.SecondaryCode.replace("    ","\t")).replace("ITEMLINE",".+")
 			oldcode = re.findall(coderegexstr,filecode)[0]
-		#if this is an itemball, we need to find out what the command is because we're also going to need to find the line that actually 
+		#if this is an itemball, we need to find out what the command is because we're also going to need to find the line that actually
 		if location.IsBall or location.IsBerry:
 			#find the code on the line BEFORE the one we need to modify
 			#fortunately, we have these lines already labeled, we need them to label something else
@@ -740,7 +765,7 @@ def WriteLocationToRom(location, itemScriptLookup, itemTextLookup):
 	#open the relevant file and get it as a string
 	file = open("RandomizerRom/maps/"+location.FileName)
 	filecode = file.read()
-	
+
 	#constuct new script that gives the new item
 	#replace is technically deprecated, but this is more readable
 	newcode = location.Code.replace("ITEMLINE",itemScriptLookup(location.item,location.IsBall,location.IsSpecial))
@@ -751,23 +776,23 @@ def WriteLocationToRom(location, itemScriptLookup, itemTextLookup):
 	coderegexstr = re.escape(location.Code.replace("    ","\t")).replace("ITEMLINE",".+")
 	oldcode = re.findall(coderegexstr,filecode)[0]
 
-	
+
 	newtext = ""
-	if location.Text is not None: 
+	if location.Text is not None:
 		#construct a new script that updates text about the new item
 		newtext = location.Text.replace("ITEMNAME",itemTextLookup(location.item))
 		#switch spaces to tabs.....
 		newtext = newtext.replace("    ","\t")
-		
+
 		#find the text we need to replace
 		textregexstr = re.escape(location.Text.replace("    ","\t")).replace("ITEMNAME",".+")
 		oldtext = re.findall(textregexstr,filecode)[0]
 	else:
 		oldtext = ""
-	
+
 	#make new file with the new text
 	newfile = filecode.replace(oldcode,newcode).replace(oldtext,newtext)
-	
+
 	#write the new file into the files for the randomizer rom
 	newfilestream = open("RandomizerRom/maps/"+location.FileName,'w')
 	newfilestream.seek(0)
@@ -779,14 +804,14 @@ def WriteLocationToRom(location, itemScriptLookup, itemTextLookup):
 
 def WriteBadgeToRom(location):
 	#print("Writing "+location.Name+" which contains "+location.badge.Name)
-	
+
 	#open the relevant file and get it as a string
 	file = open("RandomizerRom/maps/"+location.FileName)
 	filecode = file.read()
 	newfile = filecode
 	#constuct new script that gives the new item
 	#replace is technically deprecated, but this is more readable
-	
+
 	newcode = location.Code.replace("BADGELINE","ENGINE_"+location.badge.Name.replace(" ","").upper())
 	#switch spaces to tabs.....
 	newcode = newcode.replace("    ","\t")
@@ -802,9 +827,9 @@ def WriteBadgeToRom(location):
 	newfilestream.flush()
 	os.fsync(newfilestream.fileno())
 	newfilestream.close()
-	
+
 	newtext = ""
-	if location.Text is not None: 
+	if location.Text is not None:
 		for i in location.Text:
 			file = open("RandomizerRom/maps/"+i["File"])
 			filecode = file.read()
@@ -824,11 +849,11 @@ def WriteBadgeToRom(location):
 			newfilestream.flush()
 			#os.fsync(newfilestream.fileno())
 			newfilestream.close()
-			
-	
+
+
 	#make new file with the new text
 	newfile = filecode.replace(oldcode,newcode).replace(oldtext,newtext)
-	
+
 	#write the new file into the files for the randomizer rom
 	newfilestream = open("RandomizerRom/maps/"+location.FileName,'w')
 	newfilestream.seek(0)
@@ -837,8 +862,8 @@ def WriteBadgeToRom(location):
 	newfilestream.flush()
 	os.fsync(newfilestream.fileno())
 	newfilestream.close()
-	
-	
+
+
 def WriteItemLocations(locations):
 	codeLookup = Items.makeItemCodeDict()
 	textLookup = Items.makeItemTextDict()
@@ -847,7 +872,7 @@ def WriteItemLocations(locations):
 			WriteLocationToRom(i,codeLookup,textLookup)
 		elif i.isGym():
 			WriteBadgeToRom(i)
-			
+
 def WriteTrainerLevels(locationDict, distDict, trainerData):
 	trainerfile = open("Game Files/pokecrystal-speedchoice/trainers/trainers.asm")
 	newfile = trainerfile.read()
@@ -875,7 +900,7 @@ def WriteTrainerLevels(locationDict, distDict, trainerData):
 	newfilestream.flush()
 	os.fsync(newfilestream.fileno())
 	newfilestream.close()
-	
+
 def WriteWildLevels(locationDict, distDict,monFun):
 	#load up the trainer file
 	jgfile = open("Game Files/pokecrystal-speedchoice/data/wild/johto_grass.asm")
@@ -896,7 +921,7 @@ def WriteWildLevels(locationDict, distDict,monFun):
 	#load up the grass data
 	yamlfile = open("Wild Data/wildGrass.yaml")
 	yamltext = yamlfile.read()
-	wildData = yaml.load(yamltext)
+	wildData = yaml.load(yamltext, Loader=yaml.FullLoader)
 	for i in distDict:
 		if i in locationDict:
 			location = locationDict[i]
@@ -927,7 +952,7 @@ def WriteWildLevels(locationDict, distDict,monFun):
 	#load up the water data
 	yamlfile = open("Wild Data/surfGrass.yaml")
 	yamltext = yamlfile.read()
-	wildData = yaml.load(yamltext)
+	wildData = yaml.load(yamltext, Loader=yaml.FullLoader)
 	for i in distDict:
 		if i in locationDict:
 			location = locationDict[i]
@@ -957,7 +982,7 @@ def WriteWildLevels(locationDict, distDict,monFun):
 	#load up the swarm data
 	yamlfile = open("Wild Data/swarmGrass.yaml")
 	yamltext = yamlfile.read()
-	wildData = yaml.load(yamltext)
+	wildData = yaml.load(yamltext, Loader=yaml.FullLoader)
 	for i in distDict:
 		if i in locationDict:
 			location = locationDict[i]
@@ -991,7 +1016,7 @@ def WriteSpecialWildLevels(locationDict,distDict,monFun):
 		for file in files:
 			#print("File: "+file)
 			entry = open("Special Pokemon Locations/"+file,'r')
-			yamlData = yaml.load(entry)
+			yamlData = yaml.load(entry, Loader=yaml.FullLoader)
 			loc = yamlData["Location"]
 			if(loc in locationDict):
 				fileName = locationDict[loc].FileName
@@ -1028,3 +1053,94 @@ def WriteSpecialWildLevels(locationDict,distDict,monFun):
 				newfilestream.flush()
 				#os.fsync(newfilestream.fileno())
 				newfilestream.close()
+
+import string
+def ByteToGBCCharacterByte(charr):
+	upper=string.ascii_uppercase
+	lower=string.ascii_lowercase
+	digits = "0123456789"
+
+	if charr in upper:
+		return 128+upper.index(charr)
+	elif charr in lower:
+		return 160+lower.index(charr)
+	elif charr == " ":
+		return 127
+	elif charr == "!":
+		return 231
+	elif charr == ".":
+		return 232
+	elif charr == "…":
+		return 117
+	elif charr == "=":
+		return 61
+	elif charr in digits:
+		return 246+digits.index(charr)
+	elif charr == "#":
+		return 198
+
+	#Special characters
+	elif charr == "📛":
+		return 199
+	elif charr == "❌":
+		return 241
+
+	else:
+		return 127
+
+STATIC_DB_COMMAND = 80
+STATIC_NEXT_COMMAND = 78
+STATIC_TEXT_COMMAND = 0
+STATIC_LINE_COMMAND = 79
+STATIC_PARA_COMMAND = 81
+
+def WriteHideUnusedSigns(romMap, deadHints):
+	for hint in deadHints:
+		#oldTile = hint[0].originalTile
+		newTile = hint[0].newTile
+		mapData = hint[0].tileAddress
+
+		romMap[mapData] = newTile
+
+
+def WriteDescriptionsToMemory(romMap, hints, hintConfig):
+	for hint in hints:
+		addrData = hint[0]
+		hintData = hint[1]
+
+		if hintConfig.WriteXSigns and hintData.type == "runout" or hintData.type == "small":
+			continue
+
+		if hintData.totalLength != addrData.end-addrData.start:
+			print("Length decrepency: ", hintData.totalLength,addrData.end-addrData.start)
+
+		for i in range(addrData.start,addrData.end):
+			byteToWrite = None
+
+			index = i-addrData.start
+			if index == 0:
+				byteToWrite = STATIC_TEXT_COMMAND
+			else:
+				i_dex=1
+				for msg in hintData.messages:
+					message_length = len(msg.text)
+					if index < i_dex + message_length:
+						str_index = index - i_dex
+						byteToWrite = ByteToGBCCharacterByte(msg.text[str_index])
+						break
+					i_dex+=message_length
+					if index < i_dex + msg.padding:
+						byteToWrite = ByteToGBCCharacterByte(" ")
+						break
+					i_dex+=msg.padding
+					if msg.seperator is not None:
+						if index - i_dex == 0:
+							byteToWrite = msg.seperator
+							break
+						i_dex += 1
+
+
+			romMap[i] = byteToWrite
+
+
+	return
