@@ -14,8 +14,8 @@ PokefanM_DairyFarmer:
 	opentext
 .ckir_BEFORE_timed_events_MOOMOO::
 	checkevent EVENT_FIRST_TIME_BANKING_WITH_MOM
-.ckir_AFTER_timed_events_MOOMOO::
 	iffalse FarmerMScript_SellMilk
+.ckir_AFTER_timed_events_MOOMOO::
 	writetext FarmerMText_SickCow
 	waitbutton
 	closetext
@@ -75,8 +75,8 @@ PokefanF_SnoreFarmer:
 	iftrue FarmerFScript_GotSnore
 .ckir_BEFORE_timed_events_MOOMOO2::
 	checkevent EVENT_FIRST_TIME_BANKING_WITH_MOM
-.ckir_AFTER_timed_events_MOOMOO2::
 	iffalse FarmerFScript_GiveSnore
+.ckir_AFTER_timed_events_MOOMOO2::
 	writetext FarmerFText_InTrouble
 	waitbutton
 	closetext

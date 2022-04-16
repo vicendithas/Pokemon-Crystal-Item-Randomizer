@@ -134,12 +134,12 @@ Location:
                 WildTableList: 
                 LocationReqs: 
                     - Route 44
-                    - Power Plant Activated
                     - Elite Four
                 FlagReqs:
+                    - Phone Call Trainers
+                    - Kanto Power Restored
                 ItemReqs:
                     - Pokegear
-                    - Phone Call Trainers
                 FlagsSet:
                 ReachableReqs:
                 IsBall: No
@@ -182,17 +182,18 @@ Location:
                 LocationReqs: 
                     - Route 44
                 FlagReqs:
+                    - Phone Call Trainers
                 ItemReqs:
                     - Pokegear
-                    - Phone Call Trainers
                 FlagsSet:
                 ReachableReqs:
                 IsBall: No
                 NormalItem: ULTRA_BALL
                 Code: |
-                    .PokeBall:
+                    .UltraBall:
                         ITEMLINE
                         iffalse .Route44PackFullM
+                        sjump .ItemReceived
                 SecondaryCode:
                 Text:
                 TrainerList: 
